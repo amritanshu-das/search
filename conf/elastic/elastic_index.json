@@ -1,5 +1,8 @@
-// PUT /opentech
+PUT /opentech
 {
+  "settings": {
+    "index.mapping.total_fields.limit": 3000
+  },
   "mappings": {
     "dynamic": "strict",
     "dynamic_templates": [
@@ -65,57 +68,22 @@
       }
     ],
     "properties": {
-      "sku_id": {
-        "type": "text"
-      },
-      "product_id": {
-        "type": "text"
-      },
-      "item_number": {
-        "type": "text"
-      },
-      "catalog_number": {
-        "type": "text"
-      },
-      "brand": {
-        "type": "text",
-        "fields": {
-          "raw": {
-            "type": "keyword"
-          }
-        }
-      },
-      "available_lcs": {
-        "type": "keyword"
-      },
-      "item_name": {
-        "type": "text"
-      },
-      "marketing_description": {
-        "type": "text"
-      },
-      "bullet_description": {
-        "type": "text"
-      },
-      "item_popularity": {
-        "type": "integer",
-        "null_value": 1000000
-      },
-      "wise_avg_price": {
-        "type": "float"
-      },
-      "images": {
-        "enabled": false
-      },
-      "product_type": {
-        "type": "keyword"
-      },
-      "parentCategory": {
+      "master": {
+        "type": "object",
         "properties": {
-          "id": {
-            "enabled": false
+          "sku_id": {
+            "type": "text"
           },
-          "name": {
+          "product_id": {
+            "type": "text"
+          },
+          "item_number": {
+            "type": "text"
+          },
+          "catalog_number": {
+            "type": "text"
+          },
+          "brand": {
             "type": "text",
             "fields": {
               "raw": {
@@ -123,20 +91,61 @@
               }
             }
           },
-          "keywords": {
+          "available_lcs": {
+            "type": "keyword"
+          },
+          "item_name": {
             "type": "text"
+          },
+          "marketing_description": {
+            "type": "text"
+          },
+          "bullet_description": {
+            "type": "text"
+          },
+          "item_popularity": {
+            "type": "integer",
+            "null_value": 1000000
+          },
+          "wise_avg_price": {
+            "type": "float"
+          },
+          "images": {
+            "enabled": false
+          },
+          "product_type": {
+            "type": "keyword"
+          },
+          "parentCategory": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "enabled": false
+              },
+              "name": {
+                "type": "text",
+                "fields": {
+                  "raw": {
+                    "type": "keyword"
+                  }
+                }
+              },
+              "keywords": {
+                "type": "text"
+              }
+            }
+          },
+          "dynamic_attrs": {
+            "dynamic": true,
+            "type": "object"
+          },
+          "category": {
+            "dynamic": true,
+            "type": "object"
           }
         }
       },
-      "dynamic_attrs": {
-        "dynamic": true,
-        "type": "object"
-      },
       "location": {
-        "dynamic": true,
-        "type": "object"
-      },
-      "category": {
         "dynamic": true,
         "type": "object"
       }

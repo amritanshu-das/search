@@ -20,7 +20,7 @@ class ElasticIndexer():
         return jsonObj
 
     def locationsByPimId(self):
-        locationDataFile = 'D:\AD\Project\opentech\search\Elasticsearch\store_data.json'
+        locationDataFile = 'D:\AD\Project\opentech\search\Elasticsearch\location_data.json'
         locationDataJSONObj = self.processJSONFile(locationDataFile)
 
         skuDataFile = 'D:\AD\Project\opentech\search\Elasticsearch\sku_data.json'
@@ -36,7 +36,7 @@ class ElasticIndexer():
                     break
 
     def locationsByItemNum(self):
-        locationDataFile = 'D:\AD\Project\opentech\search\Elasticsearch\data\store_data.json'
+        locationDataFile = 'D:\AD\Project\opentech\search\Elasticsearch\data\location_data.json'
         locationDataJSONObj = self.processJSONFile(locationDataFile)
 
         locationItemsDict = {}
@@ -104,14 +104,14 @@ class ElasticIndexer():
         categoryDict = self.categoryById()
         productDict = self.productById()
 
-        skuDataFile = 'D:\AD\Project\opentech\search\Elasticsearch\data\pim2atg_sku_00_2020072216092763.json'
+        skuDataFile = 'D:\AD\Project\opentech\search\Elasticsearch\data\sku_data.json'
         skuDataJSONObj = self.processJSONFile(skuDataFile)
 
         elastic_doc_list = []
 
         for skuObj in skuDataJSONObj['pim_skus']:
             elastic_doc = {}
-
+            master_attr = {}
             primaryAttributes = skuObj['sku']['primaryAttributes']
             standardAttributes = skuObj['sku']['standardAttributes']
             searchButNoDisplayAttr = skuObj['sku']['SearchButNoDisplay']
@@ -125,30 +125,30 @@ class ElasticIndexer():
                     features = []
                     for bulletDesc in primaryAttributes['bulletDescription']:
                         features.append(bulletDesc['bullet'].strip())
-                    elastic_doc['bullet_description'] = features
+                    master_attr['bullet_description'] = features
 
-                elastic_doc['sku_id'] = primaryAttributes['idSku']
-                elastic_doc['sku_id'] = primaryAttributes['idSku']
-                elastic_doc['product_id'] = productId
-                elastic_doc['item_number'] = itemNumber
+                master_attr['sku_id'] = primaryAttributes['idSku']
+                master_attr['sku_id'] = primaryAttributes['idSku']
+                master_attr['product_id'] = productId
+                master_attr['item_number'] = itemNumber
                 if 'CatalogNumber' in standardAttributes:
-                    elastic_doc['catalog_number'] = standardAttributes['CatalogNumber']
-                elastic_doc['brand'] = primaryAttributes['brand']
+                    master_attr['catalog_number'] = standardAttributes['CatalogNumber']
+                master_attr['brand'] = primaryAttributes['brand']
                 itemName = primaryAttributes['itemName']
-                elastic_doc['item_name'] = itemName
-                elastic_doc['marketing_description'] = primaryAttributes['MarketingDescription']
+                master_attr['item_name'] = itemName
+                master_attr['marketing_description'] = primaryAttributes['MarketingDescription']
 
                 if 'ItemPopularity' in searchButNoDisplayAttr and searchButNoDisplayAttr['ItemPopularity'] != '':
-                    elastic_doc['item_popularity'] = int(
+                    master_attr['item_popularity'] = int(
                         searchButNoDisplayAttr['ItemPopularity'])
 
                 if 'wise_avg_price' in searchButNoDisplayAttr and searchButNoDisplayAttr['wise_avg_price'] != '':
-                    elastic_doc['wise_avg_price'] = float(
+                    master_attr['wise_avg_price'] = float(
                         searchButNoDisplayAttr['wise_avg_price'])
 
                 if 'LC2sku' in searchButNoDisplayAttr and searchButNoDisplayAttr['LC2sku'] != '':
                     availableLCs = searchButNoDisplayAttr['LC2sku'].split(';')
-                    elastic_doc['available_lcs'] = availableLCs
+                    master_attr['available_lcs'] = availableLCs
 
                 if 'images' in skuObj['sku']:
                     images = []
@@ -158,7 +158,7 @@ class ElasticIndexer():
                         images.append(skuObj['sku']['images']['img_medium'])
                     if 'img_small' in skuObj['sku']['images']:
                         images.append(skuObj['sku']['images']['img_small'])
-                    elastic_doc['images'] = images
+                    master_attr['images'] = images
 
                 if 'dynamicAttributes' in skuObj['sku']:
                     dynamicAttributesDict = {}
@@ -167,17 +167,17 @@ class ElasticIndexer():
                         dynamicAttributesDict[dynamicAttribute['name']
                                               ] = dynamicAttribute['value']
                         # uom
-                    elastic_doc['dynamic_attrs'] = dynamicAttributesDict
+                    master_attr['dynamic_attrs'] = dynamicAttributesDict
 
                 if 'productType' in productObj:
-                    elastic_doc['product_type'] = productObj['productType']
+                    master_attr['product_type'] = productObj['productType']
                 else:
                     print(productId)
 
                 categoryId = productObj['categories'][0]['structureGroupNode']
                 categoryHierarchyDict = self.createCategoryHierarchy(
                     categoryId, categoryDict)
-                elastic_doc['category'] = categoryHierarchyDict
+                master_attr['category'] = categoryHierarchyDict
 
                 parentCategoryDict = {}
                 parentCategoryObj = categoryDict[categoryId]
@@ -185,7 +185,9 @@ class ElasticIndexer():
                 parentCategoryDict['name'] = parentCategoryObj['categoryname']
                 parentCategoryDict['keywords'] = parentCategoryObj['keywords']
 
-                elastic_doc['parentCategory'] = parentCategoryDict
+                master_attr['parentCategory'] = parentCategoryDict
+
+                elastic_doc['master'] = master_attr
 
                 if itemNumber in masterLocationItemsDict:
                     locationItemsDict = {}
@@ -213,6 +215,8 @@ class ElasticIndexer():
                                           '.alt_item_name'] = itemName
 
                     elastic_doc['location'] = locationItemsDict
+                
+                # elastic_doc_list.append(elastic_doc)
                 elastic_doc_list.append(
                     {
                         "_index": "opentech",
@@ -222,6 +226,7 @@ class ElasticIndexer():
                     }
                 )
                 #return elastic_doc_list
+        print('Total docs - ' + str(len(elastic_doc_list)))        
         return elastic_doc_list
         # try:
         #     jsonFile = open(
@@ -236,24 +241,6 @@ class ElasticIndexer():
 elasticIndexer = ElasticIndexer()
 # elasticIndexer.buildDocument()
 
-# es = Elasticsearch(
-#     ['localhost'],
-#     scheme="http",
-#     port=9200,
-# )
 es = Elasticsearch('localhost:9200')
-# actions = [
-#     {
-#         "_index": "opentech",
-#         "_type": "doc",
-#         "_id": '11111111',
-#         "_source": {
-#             "sku_id": "data" + str(j)}
-#     }
-#     for j in range(0, 10)
-# ]
-# print(actions)
-# bulk(es, actions)
 elastic_doc_list = elasticIndexer.buildDocument()
-# print(elastic_doc_list)
 bulk(es, elastic_doc_list, request_timeout=120)

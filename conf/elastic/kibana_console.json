@@ -72,58 +72,22 @@ PUT /opentech
       }
     ],
     "properties": {
-      "sku_id": {
-        "type": "text"
-      },
-      "product_id": {
-        "type": "text"
-      },
-      "item_number": {
-        "type": "text"
-      },
-      "catalog_number": {
-        "type": "text"
-      },
-      "brand": {
-        "type": "text",
-        "fields": {
-          "raw": {
-            "type": "keyword"
-          }
-        }
-      },
-      "available_lcs": {
-        "type": "keyword"
-      },
-      "item_name": {
-        "type": "text"
-      },
-      "marketing_description": {
-        "type": "text"
-      },
-      "bullet_description": {
-        "type": "text"
-      },
-      "item_popularity": {
-        "type": "integer",
-        "null_value": 1000000
-      },
-      "wise_avg_price": {
-        "type": "float"
-      },
-      "images": {
-        "enabled": false
-      },
-      "product_type": {
-        "type": "keyword"
-      },
-      "parentCategory": {
-        "type": "object", 
+      "master": {
+        "type": "object",
         "properties": {
-          "id": {
-            "enabled": false
+          "sku_id": {
+            "type": "text"
           },
-          "name": {
+          "product_id": {
+            "type": "text"
+          },
+          "item_number": {
+            "type": "text"
+          },
+          "catalog_number": {
+            "type": "text"
+          },
+          "brand": {
             "type": "text",
             "fields": {
               "raw": {
@@ -131,20 +95,61 @@ PUT /opentech
               }
             }
           },
-          "keywords": {
+          "available_lcs": {
+            "type": "keyword"
+          },
+          "item_name": {
             "type": "text"
+          },
+          "marketing_description": {
+            "type": "text"
+          },
+          "bullet_description": {
+            "type": "text"
+          },
+          "item_popularity": {
+            "type": "integer",
+            "null_value": 1000000
+          },
+          "wise_avg_price": {
+            "type": "float"
+          },
+          "images": {
+            "enabled": false
+          },
+          "product_type": {
+            "type": "keyword"
+          },
+          "parentCategory": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "enabled": false
+              },
+              "name": {
+                "type": "text",
+                "fields": {
+                  "raw": {
+                    "type": "keyword"
+                  }
+                }
+              },
+              "keywords": {
+                "type": "text"
+              }
+            }
+          },
+          "dynamic_attrs": {
+            "dynamic": true,
+            "type": "object"
+          },
+          "category": {
+            "dynamic": true,
+            "type": "object"
           }
         }
       },
-      "dynamic_attrs": {
-        "dynamic": true,
-        "type": "object"
-      },
       "location": {
-        "dynamic": true,
-        "type": "object"
-      },
-      "category": {
         "dynamic": true,
         "type": "object"
       }
@@ -154,7 +159,7 @@ PUT /opentech
 
 POST _bulk
 {"index":{"_index":"opentech","_id":"1757S104"}}
-{"bullet_description":["Produces 40,000 cu. ft. of smoke","For professional use only","Made in USA"],"sku_id":"01203508","product_id":"111000002","item_number":"1757S104","catalog_number":"S104","brand":"SUPERIOR SIGNALS","item_name":"3-Minute Smoke Bomb","marketing_description":"This product quickly and efficiently produces a dense, white smoke that's ideal for a variety of applications. It's disposable, easy to use, and no external power or heat sources is needed.","item_popularity":43925,"available_lcs":["00441","00466","00531","00524","00665","00716","00785","00788","00786","00774","00777","00144","00155","00112","00205","00207","00238","00215","00280","00263","00791","00473","00467","00722"],"images":["https://pimmedia.opentechinc.com/pim/L/062018/SUPERIOR-SIGNAL-CO_S104_1757S104_L.jpg","https://pimmedia.opentechinc.com/pim/M/062018/SUPERIOR-SIGNAL-CO_S104_1757S104_M.jpg","https://pimmedia.opentechinc.com/pim/S/062018/SUPERIOR-SIGNAL-CO_S104_1757S104_S.jpg"],"dynamic_attrs":{"For Use With":"All High, Medium and Low Pressure Duct-Work Systems and Air Balancing Procedures"},"product_type":"FinishedEquipment","category":{"0.id":10005,"0.name":"Tools & Instruments","0.keyword":"Tools & Instruments","1.id":20092,"1.name":"Testing & Inspection Instruments","1.keyword":"Testing & Inspection Instruments","2.id":30006,"2.name":"Air, Gas, & Liquid Testing","2.keyword":"Air, Gas, & Liquid Testing"},"parentCategory":{"id":"30006","name":"Air, Gas, & Liquid Testing","keywords":"Air, Gas, & Liquid Testing"},"location":{"00112.mfg_code":"XX","00112.product_group":"01","00112.vendor_code":"XX","00112.b2b":"Y","00112.b2c":"N","00112.alt_item_name":"3-Minute Smoke Bomb"}}
+{"master": {"bullet_description": ["Produces 40,000 cu. ft. of smoke", "For professional use only", "Made in USA"], "sku_id": "01203508", "product_id": "111000002", "item_number": "1757S104", "catalog_number": "S104", "brand": "SUPERIOR SIGNALS", "item_name": "3-Minute Smoke Bomb", "marketing_description": "This product quickly and efficiently produces a dense, white smoke that's ideal for a variety of applications. It's disposable, easy to use, and no external power or heat sources is needed.", "item_popularity": 43925, "available_lcs": ["00441", "00466", "00531", "00524", "00665", "00716", "00785", "00788", "00786", "00774", "00777", "00144", "00155", "00112", "00205", "00207", "00238", "00215", "00280", "00263", "00791", "00473", "00467", "00722"], "images": ["https://pimmedia.opentechinc.com/pim/L/062018/SUPERIOR-SIGNAL-CO_S104_1757S104_L.jpg", "https://pimmedia.opentechinc.com/pim/M/062018/SUPERIOR-SIGNAL-CO_S104_1757S104_M.jpg", "https://pimmedia.opentechinc.com/pim/S/062018/SUPERIOR-SIGNAL-CO_S104_1757S104_S.jpg"], "dynamic_attrs": {"For Use With": "All High, Medium and Low Pressure Duct-Work Systems and Air Balancing Procedures"}, "product_type": "FinishedEquipment", "category": {"0.id": 10005, "0.name": "Tools & Instruments", "0.keyword": "Tools & Instruments", "1.id": 20092, "1.name": "Testing & Inspection Instruments", "1.keyword": "Testing & Inspection Instruments", "2.id": 30006, "2.name": "Air, Gas, & Liquid Testing", "2.keyword": "Air, Gas, & Liquid Testing"}, "parentCategory": {"id": "30006", "name": "Air, Gas, & Liquid Testing", "keywords": "Air, Gas, & Liquid Testing"}}, "location": {"00112.mfg_code": "XX", "00112.product_group": "01", "00112.vendor_code": "XX", "00112.b2b": "Y", "00112.b2c": "N", "00112.alt_item_name": "3-Minute Smoke Bomb"}}
 
 GET _cluster/health/opentech
 
@@ -188,7 +193,7 @@ GET /opentech/_search
 	"query": {
 		"multi_match": {
 			"query": "SUPERIOR",
-			"fields": ["name", "brand"]
+			"fields": ["master.item_name", "master.brand"]
 		}
 	}
 }
@@ -198,7 +203,7 @@ GET /opentech/_search
 	"query": {
 		"multi_match": {
 			"query": "Air",
-			"fields": ["name", "parentCategory.name"]
+			"fields": ["master.item_name", "master.parentCategory.name"]
 		}
 	}
 }
@@ -207,18 +212,29 @@ GET /opentech/_search
 {
 	"query": {
 		"term": {
-			"available_lcs": {"value": "00322"}
+			"master.available_lcs": {"value": "00322"}
 		}
 	}
 }
 
 GET /opentech/_search
 {
-  "_source": "location.*",
+  "_source": ["location.*"],
 	"query": {
 		"multi_match": {
 			"query": "0762RK17VB",
-			"fields": ["item_number"]
+			"fields": ["master.item_number"]
+		}
+	}
+}
+
+GET /opentech/_search
+{
+  "_source": ["master.*", "location.*"],
+	"query": {
+		"multi_match": {
+			"query": "0762RK17VB",
+			"fields": ["master.item_number"]
 		}
 	}
 }
